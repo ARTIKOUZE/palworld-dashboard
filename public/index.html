@@ -56,23 +56,23 @@
 
       <!-- Onglet Actions -->
       <section id="tab-actions" class="hidden">
-        <div class="action-card">
+        <div class="action-card hidden" id="card-start">
           <h2>▶ Démarrage</h2>
-          <p class="muted">Relance le processus du serveur s'il est arrêté.</p>
+          <p class="muted">Le serveur est arrêté — relance le processus.</p>
           <button id="start-btn-action">Démarrer le serveur</button>
         </div>
-        <div class="action-card">
+        <div class="action-card hidden" id="card-announce">
           <h2>📢 Annonce</h2>
           <form id="announce-form">
             <input type="text" id="announce-message" placeholder="Message à diffuser en jeu" required />
             <button type="submit">Envoyer</button>
           </form>
         </div>
-        <div class="action-card">
+        <div class="action-card hidden" id="card-save">
           <h2>💾 Sauvegarde</h2>
           <button id="save-btn">Sauvegarder le monde</button>
         </div>
-        <div class="action-card danger">
+        <div class="action-card danger hidden" id="card-shutdown">
           <h2>⏻ Arrêt du serveur</h2>
           <form id="shutdown-form">
             <input type="number" id="shutdown-wait" value="30" min="1" /> secondes de préavis

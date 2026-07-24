@@ -7,7 +7,9 @@ let lang = localStorage.getItem('lang') || 'fr';
 
 /** Métadonnées d'une clé du .ini : { name, desc } dans la langue courante. */
 function metaFor(key) {
-  const m = window.SETTINGS_META && SETTINGS_META[key];
+  // "const SETTINGS_META" au niveau script n'est pas une propriété de window :
+  // il faut tester le symbole lui-même
+  const m = typeof SETTINGS_META !== 'undefined' ? SETTINGS_META[key] : null;
   if (!m) return { name: key, desc: '' };
   return lang === 'fr' ? { name: m[0], desc: m[1] } : { name: m[2], desc: m[3] };
 }
@@ -93,7 +95,7 @@ async function refreshStatus() {
   try {
     const data = await api('/api/status');
     const badge = $('#server-status');
-    $('#start-server-btn').classList.toggle('hidden', data.online);
+    setOnlineUI(data.online);
     if (!data.online) {
       badge.textContent = '● Hors ligne';
       badge.className = 'badge offline';
@@ -136,6 +138,18 @@ async function refreshStatus() {
 
 // --- Actions ----------------------------------------------------------------
 
+/**
+ * Les actions n'ont de sens que dans un état donné : Démarrer quand le
+ * serveur est éteint, tout le reste quand il est allumé.
+ */
+function setOnlineUI(online) {
+  $('#start-server-btn').classList.toggle('hidden', online);
+  $('#card-start').classList.toggle('hidden', online);
+  ['#card-announce', '#card-save', '#card-shutdown'].forEach((sel) =>
+    $(sel).classList.toggle('hidden', !online)
+  );
+}
+
 async function startServer() {
   if (!confirm('Démarrer le serveur Palworld ?')) return;
   try {
@@ -173,39 +187,65 @@ $('#shutdown-form').addEventListener('submit', async (e) => {
 let configEntries = [];
 const configChanges = {};
 
+function configRow(entry) {
+  const meta = metaFor(entry.key);
+  const row = document.createElement('div');
+  row.className = 'config-row';
+  const changed = entry.key in configChanges ? ' changed' : '';
+  const current = entry.key in configChanges ? configChanges[entry.key] : entry.value;
+  let input;
+  if (entry.type === 'boolean') {
+    input = `<select data-key="${entry.key}">
+      <option value="True" ${current === true || current === 'True' ? 'selected' : ''}>True</option>
+      <option value="False" ${current === false || current === 'False' ? 'selected' : ''}>False</option>
+    </select>`;
+  } else {
+    const inputType = entry.type === 'float' || entry.type === 'integer' ? 'number' : 'text';
+    const step = entry.type === 'float' ? ' step="any"' : '';
+    input = `<input type="${inputType}"${step} data-key="${entry.key}" value="${String(current).replace(/"/g, '&quot;')}" />`;
+  }
+  // la description et la clé technique n'apparaissent qu'au survol du nom
+  row.innerHTML = `
+    <div class="config-label${changed}">
+      <span class="config-name">${meta.name}
+        <span class="tooltip">${meta.desc || ''}<code>${entry.key} · ${entry.type}</code></span>
+      </span>
+    </div>${input}`;
+  return row;
+}
+
 function renderConfig(filter = '') {
   const container = $('#config-form');
   container.innerHTML = '';
   const query = filter.toLowerCase();
-  for (const entry of configEntries) {
+  const matches = (entry) => {
+    if (!query) return true;
     const meta = metaFor(entry.key);
-    // le filtre cherche dans la clé technique, le nom traduit et la description
-    const haystack = `${entry.key} ${meta.name} ${meta.desc}`.toLowerCase();
-    if (query && !haystack.includes(query)) continue;
-    const row = document.createElement('div');
-    row.className = 'config-row';
-    const changed = entry.key in configChanges ? ' changed' : '';
-    let input;
-    if (entry.type === 'boolean') {
-      const current = entry.key in configChanges ? configChanges[entry.key] : entry.value;
-      input = `<select data-key="${entry.key}">
-        <option value="True" ${current === true || current === 'True' ? 'selected' : ''}>True</option>
-        <option value="False" ${current === false || current === 'False' ? 'selected' : ''}>False</option>
-      </select>`;
-    } else {
-      const current = entry.key in configChanges ? configChanges[entry.key] : entry.value;
-      const inputType = entry.type === 'float' || entry.type === 'integer' ? 'number' : 'text';
-      const step = entry.type === 'float' ? ' step="any"' : '';
-      input = `<input type="${inputType}"${step} data-key="${entry.key}" value="${String(current).replace(/"/g, '&quot;')}" />`;
-    }
-    row.innerHTML = `
-      <div class="config-label${changed}">
-        <span class="config-name">${meta.name}<span class="type-tag">${entry.type}</span></span>
-        <code class="config-code">${entry.key}</code>
-        ${meta.desc ? `<span class="config-desc">${meta.desc}</span>` : ''}
-      </div>${input}`;
-    container.appendChild(row);
+    return `${entry.key} ${meta.name} ${meta.desc}`.toLowerCase().includes(query);
+  };
+
+  // regroupe les entrées par catégorie, dans l'ordre défini par settings-meta.js
+  const byKey = new Map(configEntries.map((e) => [e.key, e]));
+  const categorized = new Set();
+  const groups = (typeof SETTINGS_CATEGORIES !== 'undefined' ? SETTINGS_CATEGORIES : []).map(
+    ([, labelFr, labelEn, keys]) => ({
+      label: lang === 'fr' ? labelFr : labelEn,
+      entries: keys.map((k) => (categorized.add(k), byKey.get(k))).filter(Boolean),
+    })
+  );
+  const rest = configEntries.filter((e) => !categorized.has(e.key));
+  if (rest.length) groups.push({ label: lang === 'fr' ? 'Autres' : 'Other', entries: rest });
+
+  for (const group of groups) {
+    const entries = group.entries.filter(matches);
+    if (entries.length === 0) continue;
+    const header = document.createElement('h3');
+    header.className = 'config-cat';
+    header.textContent = group.label;
+    container.appendChild(header);
+    for (const entry of entries) container.appendChild(configRow(entry));
   }
+
   container.querySelectorAll('[data-key]').forEach((el) => {
     el.addEventListener('change', () => {
       configChanges[el.dataset.key] = el.value;

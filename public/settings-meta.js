@@ -127,3 +127,66 @@ const SETTINGS_META = {
   bEnableBuildingPlayerUIdDisplay: ['Propriétaire des constructions', 'Affiche l’identifiant du joueur propriétaire sur les constructions.', 'Building owner display', 'Shows the owning player’s ID on structures.'],
   BuildingNameDisplayCacheTTLSeconds: ['Cache noms bâtiments (s)', 'Réglage technique : durée de cache de l’affichage des noms de constructions.', 'Building name cache (s)', 'Technical: cache duration for building name display.'],
 };
+
+/**
+ * Catégories de l'éditeur de config : [id, label FR, label EN, clés].
+ * L'ordre des catégories et des clés est l'ordre d'affichage. Une clé du .ini
+ * absente d'ici atterrit dans une catégorie « Autres » en fin de liste.
+ */
+const SETTINGS_CATEGORIES = [
+  ['general', '🌍 Général', '🌍 General', [
+    'Difficulty', 'bIsMultiplay', 'bIsPvP', 'bHardcore', 'bPalLost', 'bCharacterRecreateInHardcore',
+    'DeathPenalty', 'DayTimeSpeedRate', 'NightTimeSpeedRate',
+    'RandomizerType', 'RandomizerSeed', 'bIsRandomizerPalLevelRandom',
+  ]],
+  ['rates', '📈 Taux & progression', '📈 Rates & progression', [
+    'ExpRate', 'PalCaptureRate', 'PalSpawnNumRate', 'WorkSpeedRate', 'PalEggDefaultHatchingTime',
+    'ItemWeightRate', 'CollectionDropRate', 'CollectionObjectHpRate', 'CollectionObjectRespawnSpeedRate',
+    'EnemyDropItemRate', 'EquipmentDurabilityDamageRate', 'ItemCorruptionMultiplier', 'MonsterFarmActionSpeedRate',
+  ]],
+  ['combat', '⚔️ Combat & survie', '⚔️ Combat & survival', [
+    'PlayerDamageRateAttack', 'PlayerDamageRateDefense', 'PalDamageRateAttack', 'PalDamageRateDefense',
+    'PlayerStomachDecreaceRate', 'PlayerStaminaDecreaceRate', 'PlayerAutoHPRegeneRate', 'PlayerAutoHpRegeneRateInSleep',
+    'PalStomachDecreaceRate', 'PalStaminaDecreaceRate', 'PalAutoHPRegeneRate', 'PalAutoHpRegeneRateInSleep',
+    'bEnablePlayerToPlayerDamage', 'bEnableFriendlyFire', 'bEnableInvaderEnemy', 'EnablePredatorBossPal',
+    'bEnableAimAssistPad', 'bEnableAimAssistKeyboard',
+    'BlockRespawnTime', 'RespawnPenaltyDurationThreshold', 'RespawnPenaltyTimeScale',
+    'bAllowEnhanceStat_Health', 'bAllowEnhanceStat_Attack', 'bAllowEnhanceStat_Stamina',
+    'bAllowEnhanceStat_Weight', 'bAllowEnhanceStat_WorkSpeed',
+  ]],
+  ['base', '🏕️ Bases & construction', '🏕️ Bases & building', [
+    'BaseCampMaxNum', 'BaseCampWorkerMaxNum', 'BaseCampMaxNumInGuild',
+    'BuildObjectHpRate', 'BuildObjectDamageRate', 'BuildObjectDeteriorationDamageRate',
+    'bBuildAreaLimit', 'MaxBuildingLimitNum', 'bEnableBuildingPlayerUIdDisplay',
+    'DropItemMaxNum', 'PhysicsActiveDropItemMaxNum', 'DropItemAliveMaxHours',
+    'bActiveUNKO', 'DropItemMaxNum_UNKO', 'SupplyDropSpan',
+  ]],
+  ['guild', '👥 Guildes & joueurs', '👥 Guilds & players', [
+    'GuildPlayerMaxNum', 'GuildRejoinCooldownMinutes',
+    'bAutoResetGuildNoOnlinePlayers', 'AutoResetGuildTimeNoOnlinePlayers',
+    'AutoTransferMasterThresholdDays', 'bEnableNonLoginPenalty',
+    'bEnableFastTravel', 'bEnableFastTravelOnlyBaseCamp', 'bIsStartLocationSelectByMap',
+    'bExistPlayerAfterLogout', 'bCanPickupOtherGuildDeathPenaltyDrop',
+    'bEnableDefenseOtherGuildPlayer', 'bInvisibleOtherGuildBaseCampAreaFX',
+  ]],
+  ['pvp', '🗡️ PvP', '🗡️ PvP', [
+    'bDisplayPvPItemNumOnWorldMap_BaseCamp', 'bDisplayPvPItemNumOnWorldMap_Player',
+    'bAdditionalDropItemWhenPlayerKillingInPvPMode',
+    'AdditionalDropItemWhenPlayerKillingInPvPMode', 'AdditionalDropItemNumWhenPlayerKillingInPvPMode',
+  ]],
+  ['server', '🖧 Serveur & réseau', '🖧 Server & network', [
+    'ServerName', 'ServerDescription', 'ServerPassword', 'AdminPassword',
+    'ServerPlayerMaxNum', 'CoopPlayerMaxNum', 'PublicPort', 'PublicIP', 'Region',
+    'bUseAuth', 'BanListURL', 'bShowPlayerList', 'CrossplayPlatforms', 'bAllowClientMod',
+    'ChatPostLimitPerMinute', 'bIsShowJoinLeftMessage', 'DenyTechnologyList',
+    'bEnableVoiceChat', 'VoiceChatMaxVolumeDistance', 'VoiceChatZeroVolumeDistance',
+    'bAllowGlobalPalboxExport', 'bAllowGlobalPalboxImport',
+  ]],
+  ['technical', '🔧 Technique & avancé', '🔧 Technical & advanced', [
+    'RESTAPIEnabled', 'RESTAPIPort', 'RCONEnabled', 'RCONPort',
+    'AutoSaveSpan', 'bIsUseBackupSaveData', 'LogFormatType',
+    'ServerReplicatePawnCullDistance', 'ItemContainerForceMarkDirtyInterval',
+    'PlayerDataPalStorageUpdateCheckTickInterval', 'AutoTransferMasterCheckIntervalSeconds',
+    'MaxGuildsPerFrame', 'BuildingNameDisplayCacheTTLSeconds',
+  ]],
+];
