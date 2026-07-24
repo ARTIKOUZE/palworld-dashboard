@@ -1,0 +1,89 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Palworld Dashboard</title>
+  <link rel="stylesheet" href="style.css" />
+</head>
+<body>
+  <!-- Écran de login -->
+  <div id="login-view" class="hidden">
+    <form id="login-form" class="login-card">
+      <h1>🐑 Palworld Dashboard</h1>
+      <input type="password" id="login-password" placeholder="Mot de passe" autocomplete="current-password" required />
+      <button type="submit">Connexion</button>
+      <p id="login-error" class="error hidden">Mot de passe incorrect</p>
+    </form>
+  </div>
+
+  <!-- Application -->
+  <div id="app-view" class="hidden">
+    <header>
+      <h1>🐑 Palworld Dashboard</h1>
+      <span id="server-status" class="badge">…</span>
+      <nav>
+        <button data-tab="dashboard" class="tab active">Dashboard</button>
+        <button data-tab="actions" class="tab">Actions</button>
+        <button data-tab="config" class="tab">Config</button>
+        <button id="logout-btn">Déconnexion</button>
+      </nav>
+    </header>
+
+    <main>
+      <!-- Onglet Dashboard -->
+      <section id="tab-dashboard">
+        <div class="stat-grid">
+          <div class="stat"><span class="stat-label">FPS</span><span id="stat-fps" class="stat-value">—</span></div>
+          <div class="stat"><span class="stat-label">Uptime</span><span id="stat-uptime" class="stat-value">—</span></div>
+          <div class="stat"><span class="stat-label">Joueurs</span><span id="stat-players" class="stat-value">—</span></div>
+          <div class="stat"><span class="stat-label">Frame time</span><span id="stat-frametime" class="stat-value">—</span></div>
+        </div>
+        <h2>Joueurs connectés</h2>
+        <table id="players-table">
+          <thead>
+            <tr><th>Nom</th><th>Niveau</th><th>Position</th><th>Ping</th><th></th></tr>
+          </thead>
+          <tbody></tbody>
+        </table>
+        <p id="no-players" class="muted hidden">Aucun joueur connecté</p>
+      </section>
+
+      <!-- Onglet Actions -->
+      <section id="tab-actions" class="hidden">
+        <div class="action-card">
+          <h2>📢 Annonce</h2>
+          <form id="announce-form">
+            <input type="text" id="announce-message" placeholder="Message à diffuser en jeu" required />
+            <button type="submit">Envoyer</button>
+          </form>
+        </div>
+        <div class="action-card">
+          <h2>💾 Sauvegarde</h2>
+          <button id="save-btn">Sauvegarder le monde</button>
+        </div>
+        <div class="action-card danger">
+          <h2>⏻ Arrêt du serveur</h2>
+          <form id="shutdown-form">
+            <input type="number" id="shutdown-wait" value="30" min="1" /> secondes de préavis
+            <button type="submit" class="danger-btn">Arrêter</button>
+          </form>
+        </div>
+      </section>
+
+      <!-- Onglet Config -->
+      <section id="tab-config" class="hidden">
+        <div class="config-toolbar">
+          <input type="search" id="config-filter" placeholder="Filtrer les clés (ex : rate, pal, server)…" />
+          <label><input type="checkbox" id="config-restart" checked /> Redémarrer le serveur après écriture</label>
+          <button id="config-save">Écrire le .ini</button>
+        </div>
+        <p id="config-status" class="muted"></p>
+        <div id="config-form"></div>
+      </section>
+    </main>
+  </div>
+
+  <script src="app.js"></script>
+</body>
+</html>

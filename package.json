@@ -1,0 +1,23 @@
+{
+  "name": "palworld-dashboard",
+  "version": "1.0.0",
+  "description": "Dashboard de visualisation et d'administration pour serveur dédié Palworld (Steam)",
+  "main": "server.js",
+  "scripts": {
+    "start": "node server.js",
+    "dev": "node --watch server.js",
+    "test": "node --test"
+  },
+  "keywords": [
+    "palworld",
+    "dedicated-server",
+    "dashboard",
+    "rest-api"
+  ],
+  "license": "MIT",
+  "dependencies": {
+    "dotenv": "^16.4.5",
+    "express": "^4.21.0",
+    "express-session": "^1.18.0"
+  }
+}
