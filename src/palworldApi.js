@@ -7,8 +7,27 @@
  * Doc : https://tech.palworldgame.com/api/rest-api/palwold-rest-api/
  */
 
+let cachedHost;
+
+/**
+ * PALWORLD_HOST=auto : le dashboard tourne sous WSL et le serveur Palworld
+ * sous Windows. L'hôte Windows est la passerelle par défaut de WSL, dont
+ * l'IP change à chaque redémarrage — on la résout au premier appel.
+ */
+function resolveHost() {
+  const configured = process.env.PALWORLD_HOST || '127.0.0.1';
+  if (configured !== 'auto') return configured;
+  if (!cachedHost) {
+    cachedHost = require('child_process')
+      .execSync("ip route show default | awk '{print $3}'")
+      .toString()
+      .trim();
+  }
+  return cachedHost;
+}
+
 const BASE = () =>
-  `http://${process.env.PALWORLD_HOST || '127.0.0.1'}:${process.env.PALWORLD_API_PORT || 8212}/v1/api`;
+  `http://${resolveHost()}:${process.env.PALWORLD_API_PORT || 8212}/v1/api`;
 
 function authHeader() {
   const token = Buffer.from(`admin:${process.env.PALWORLD_ADMIN_PASSWORD || ''}`).toString('base64');

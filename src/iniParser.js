@@ -15,6 +15,9 @@
  *  - les guillemets courbes (“ ” ‘ ’) introduits par copier-coller depuis un
  *    éditeur de texte riche cassent le chargement côté serveur : on les
  *    normalise en guillemets droits
+ *  - certaines valeurs sont des listes entre parenthèses imbriquées
+ *    (CrossplayPlatforms=(Steam,Xbox,PS5,Mac)) : leurs virgules non plus ne
+ *    séparent pas deux paires
  *  - le serveur réécrit le fichier à l'arrêt : il faut écrire PUIS redémarrer,
  *    jamais l'inverse
  */
@@ -31,17 +34,25 @@ function normalizeQuotes(text) {
 
 /**
  * Découpe le contenu entre parenthèses en paires clé/valeur, en respectant
- * les guillemets (une virgule entre guillemets ne sépare pas deux paires).
+ * les guillemets et les parenthèses imbriquées : une virgule entre guillemets
+ * ou à l'intérieur d'une liste (Steam,Xbox,...) ne sépare pas deux paires.
  */
 function splitPairs(body) {
   const pairs = [];
   let current = '';
   let inQuotes = false;
+  let depth = 0;
   for (const ch of body) {
     if (ch === '"') {
       inQuotes = !inQuotes;
       current += ch;
-    } else if (ch === ',' && !inQuotes) {
+    } else if (!inQuotes && ch === '(') {
+      depth += 1;
+      current += ch;
+    } else if (!inQuotes && ch === ')') {
+      depth -= 1;
+      current += ch;
+    } else if (ch === ',' && !inQuotes && depth === 0) {
       pairs.push(current);
       current = '';
     } else {
@@ -55,6 +66,7 @@ function splitPairs(body) {
 /** Devine le type d'une valeur brute pour typer le formulaire côté front. */
 function inferType(raw) {
   if (raw.startsWith('"') && raw.endsWith('"')) return 'string';
+  if (raw.startsWith('(') && raw.endsWith(')')) return 'list'; // (Steam,Xbox,PS5,Mac)
   if (raw === 'True' || raw === 'False') return 'boolean';
   if (/^-?\d+\.\d+$/.test(raw)) return 'float';
   if (/^-?\d+$/.test(raw)) return 'integer';

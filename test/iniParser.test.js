@@ -5,14 +5,21 @@ const assert = require('node:assert');
 const { parse, serialize, normalizeQuotes, inferType } = require('../src/iniParser');
 
 const SAMPLE = `[/Script/Pal.PalGameWorldSettings]
-OptionSettings=(Difficulty=None,DayTimeSpeedRate=1.000000,NightTimeSpeedRate=1.000000,ExpRate=1.000000,PalCaptureRate=1.000000,DeathPenalty=All,bEnablePlayerToPlayerDamage=False,ServerPlayerMaxNum=32,ServerName="Mon serveur, le meilleur",ServerDescription="",AdminPassword="secret123",PublicPort=8211,RESTAPIEnabled=True,RESTAPIPort=8212)
+OptionSettings=(Difficulty=None,DayTimeSpeedRate=1.000000,NightTimeSpeedRate=1.000000,ExpRate=1.000000,PalCaptureRate=1.000000,DeathPenalty=All,bEnablePlayerToPlayerDamage=False,ServerPlayerMaxNum=32,ServerName="Mon serveur, le meilleur",CrossplayPlatforms=(Steam,Xbox,PS5,Mac),ServerDescription="",AdminPassword="secret123",PublicPort=8211,RESTAPIEnabled=True,RESTAPIPort=8212)
 `;
 
 test('parse extrait toutes les paires dans l\'ordre', () => {
   const { entries } = parse(SAMPLE);
-  assert.strictEqual(entries.length, 14);
+  assert.strictEqual(entries.length, 15);
   assert.strictEqual(entries[0].key, 'Difficulty');
   assert.strictEqual(entries[entries.length - 1].key, 'RESTAPIPort');
+});
+
+test('les listes imbriquées (CrossplayPlatforms) restent une seule paire', () => {
+  const { entries } = parse(SAMPLE);
+  const cross = entries.find((e) => e.key === 'CrossplayPlatforms');
+  assert.strictEqual(cross.raw, '(Steam,Xbox,PS5,Mac)');
+  assert.strictEqual(cross.type, 'list');
 });
 
 test('les virgules dans les chaînes entre guillemets ne cassent pas le découpage', () => {
@@ -59,7 +66,7 @@ test('serialize applique les modifications en gardant le format', () => {
   // le reste est inchangé
   assert.ok(out.includes('DayTimeSpeedRate=1.000000'));
   // et le résultat reste re-parsable
-  assert.strictEqual(parse(out).entries.length, 14);
+  assert.strictEqual(parse(out).entries.length, 15);
 });
 
 test('serialize rejette une valeur numérique invalide', () => {
