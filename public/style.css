@@ -60,6 +60,12 @@ main { padding: 1.5rem; max-width: 1100px; margin: 0 auto; }
 .badge.online { color: var(--green); }
 .badge.offline { color: var(--red); }
 
+.start-btn { background: var(--green); border-color: var(--green); color: #0d1a12; font-weight: 600; }
+
+.lang-toggle { display: flex; border: 1px solid var(--border); border-radius: 8px; overflow: hidden; }
+.lang-btn { border: none; border-radius: 0; padding: 0.4rem 0.7rem; font-size: 0.8rem; }
+.lang-btn.active { background: var(--accent); }
+
 /* Boutons & inputs */
 button {
   background: var(--surface-2);
@@ -143,8 +149,11 @@ th { color: var(--muted); font-weight: 500; font-size: 0.8rem; }
   border-bottom: 1px solid var(--border);
 }
 .config-row:hover { background: var(--surface); }
-.config-key { font-size: 0.85rem; font-family: ui-monospace, monospace; display: flex; gap: 0.5rem; align-items: center; }
-.config-key.changed::before { content: "●"; color: var(--accent); }
+.config-label { display: flex; flex-direction: column; gap: 0.15rem; }
+.config-name { font-size: 0.9rem; font-weight: 600; display: flex; gap: 0.5rem; align-items: center; }
+.config-label.changed .config-name::before { content: "●"; color: var(--accent); }
+.config-code { font-size: 0.7rem; font-family: ui-monospace, monospace; color: var(--muted); }
+.config-desc { font-size: 0.8rem; color: var(--muted); line-height: 1.35; }
 .type-tag {
   font-size: 0.65rem;
   color: var(--muted);

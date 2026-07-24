@@ -99,6 +99,24 @@ app.post('/api/actions/save', requireAuth, async (req, res) => {
   }
 });
 
+app.post('/api/actions/start', requireAuth, async (req, res) => {
+  if (!RESTART_CMD) {
+    return res.status(500).json({ error: 'PALWORLD_RESTART_CMD non configuré' });
+  }
+  // Garde-fou : lancer PalServer.exe alors qu'il tourne déjà créerait un
+  // second processus qui corromprait la sauvegarde.
+  try {
+    await api.info();
+    return res.status(409).json({ error: 'Le serveur tourne déjà' });
+  } catch {
+    // injoignable → hors ligne, on peut démarrer
+  }
+  exec(RESTART_CMD, (err) => {
+    if (err) console.error('Échec du démarrage :', err.message);
+  });
+  res.json({ ok: true });
+});
+
 app.post('/api/actions/shutdown', requireAuth, async (req, res) => {
   try {
     await api.shutdown(req.body.waittime, req.body.message);

@@ -1,12 +1,12 @@
 #!/usr/bin/env bash
-# Relance PalServer.exe côté Windows depuis WSL.
+# Relaunches PalServer.exe on the Windows side from WSL.
 #
-# Utilisé par PALWORLD_RESTART_CMD : le dashboard arrête d'abord proprement le
-# serveur via l'API REST (save + shutdown), écrit le .ini, puis exécute ce
-# script pour relancer le processus.
+# Used by PALWORLD_RESTART_CMD: the dashboard first stops the server cleanly
+# through the REST API (save + shutdown), writes the .ini, then runs this
+# script to bring the server process back up.
 #
-# "start" détache le processus pour que PalServer survive à la fin du script ;
-# cmd.exe est lancé depuis C:\ pour éviter l'avertissement UNC des chemins WSL.
+# "start" detaches the process so PalServer survives the end of the script;
+# cmd.exe is launched from C:\ to avoid the UNC warning on WSL paths.
 
 set -euo pipefail
 

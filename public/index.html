@@ -22,6 +22,11 @@
     <header>
       <h1>🐑 Palworld Dashboard</h1>
       <span id="server-status" class="badge">…</span>
+      <button id="start-server-btn" class="hidden start-btn">▶ Démarrer le serveur</button>
+      <div class="lang-toggle">
+        <button data-lang="fr" class="lang-btn active">FR</button>
+        <button data-lang="en" class="lang-btn">EN</button>
+      </div>
       <nav>
         <button data-tab="dashboard" class="tab active">Dashboard</button>
         <button data-tab="actions" class="tab">Actions</button>
@@ -51,6 +56,11 @@
 
       <!-- Onglet Actions -->
       <section id="tab-actions" class="hidden">
+        <div class="action-card">
+          <h2>▶ Démarrage</h2>
+          <p class="muted">Relance le processus du serveur s'il est arrêté.</p>
+          <button id="start-btn-action">Démarrer le serveur</button>
+        </div>
         <div class="action-card">
           <h2>📢 Annonce</h2>
           <form id="announce-form">
@@ -84,6 +94,7 @@
     </main>
   </div>
 
+  <script src="settings-meta.js"></script>
   <script src="app.js"></script>
 </body>
 </html>

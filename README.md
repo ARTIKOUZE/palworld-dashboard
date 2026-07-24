@@ -1,109 +1,113 @@
 # Palworld Dashboard
 
-Petite application web de visualisation et d'administration pour serveur dédié **Palworld** (Steam dedicated server). Node + Express côté backend, HTML/JS vanilla côté front — un seul repo, `npm install && npm start`, et ça tourne.
+A small web app to monitor and administrate a **Palworld** dedicated server (Steam dedicated server). Node + Express backend, vanilla HTML/JS frontend — a single repo, `npm install && npm start`, and it runs.
 
-## Fonctionnalités (v1)
+## Features (v1)
 
-- 🔐 **Login** par mot de passe (session cookie)
-- 📊 **Dashboard** : FPS, uptime, frame time, joueurs connectés avec niveau, position et ping (rafraîchi toutes les 5 s)
-- ⚡ **Actions** : annonce en jeu, kick, sauvegarde du monde, arrêt programmé
-- ⚙️ **Éditeur de config** : lecture de `PalWorldSettings.ini` → formulaire typé et filtrable (~119 clés) → réécriture sûre → redémarrage du processus serveur
+- 🔐 **Login** with a password (session cookie)
+- 📊 **Dashboard**: FPS, uptime, frame time, connected players with level, position and ping (refreshed every 5 s)
+- ⚡ **Actions**: start the server, in-game announcement, kick, world save, scheduled shutdown
+- ⚙️ **Config editor**: reads `PalWorldSettings.ini` → typed, filterable form (119 keys) → safe rewrite → server process restart
+- 🌍 **Bilingual**: every `.ini` key has a human-readable name and description in both French and English ([public/settings-meta.js](public/settings-meta.js)), with an FR/EN switch at the top of the app; the filter also searches translated names and descriptions
 
-## Prérequis
+## Requirements
 
 - Node.js ≥ 18
-- Un serveur dédié Palworld avec l'API REST activée dans `PalWorldSettings.ini` :
+- A Palworld dedicated server with the REST API enabled in `PalWorldSettings.ini`:
   ```
-  RESTAPIEnabled=True,RESTAPIPort=8212,AdminPassword="votre-mot-de-passe"
+  RESTAPIEnabled=True,RESTAPIPort=8212,AdminPassword="your-password"
   ```
 
 ## Installation
 
 ```bash
 npm install
-cp .env.example .env   # puis remplir les valeurs
+cp .env.example .env   # then fill in the values
 npm start
 ```
 
-Le dashboard est disponible sur `http://localhost:3000`.
+The dashboard is available at `http://localhost:3000`.
 
-| Variable | Rôle |
+| Variable | Purpose |
 |---|---|
-| `DASHBOARD_PASSWORD` | Mot de passe de connexion au dashboard |
-| `PALWORLD_ADMIN_PASSWORD` | L'`AdminPassword` du serveur (auth Basic de l'API REST) |
-| `PALWORLD_INI_PATH` | Chemin absolu vers `PalWorldSettings.ini` |
-| `PALWORLD_RESTART_CMD` | Commande de redémarrage (voir ci-dessous) |
+| `DASHBOARD_PASSWORD` | Password to log into the dashboard |
+| `PALWORLD_ADMIN_PASSWORD` | The server's `AdminPassword` (REST API Basic auth) |
+| `PALWORLD_INI_PATH` | Absolute path to `PalWorldSettings.ini` |
+| `PALWORLD_RESTART_CMD` | Restart command (see below) |
 
-## Le redémarrage du serveur (`PALWORLD_RESTART_CMD`)
+## Restarting the server (`PALWORLD_RESTART_CMD`)
 
-Quand on écrit le `.ini`, le serveur doit être **relancé** pour prendre en compte les changements. L'arrêt se fait proprement via l'API REST (`save` puis `shutdown`) — mais l'API ne sait pas *redémarrer* un processus mort. `PALWORLD_RESTART_CMD` est donc la commande shell que le dashboard exécute après avoir écrit le fichier, pour relancer le processus serveur :
+When the `.ini` is written, the server must be **relaunched** to pick up the changes. Stopping is done cleanly through the REST API (`save` then `shutdown`) — but the API cannot *restart* a dead process. `PALWORLD_RESTART_CMD` is the shell command the dashboard runs after writing the file to bring the server process back up:
 
-- **Linux avec service systemd** : `systemctl restart palworld`
-- **Docker** : `docker restart palworld`
-- **Serveur Steam sous Windows, dashboard sous WSL** : `bash scripts/restart-palserver.sh` — le script utilise l'interop WSL (`cmd.exe /C start`) pour relancer `PalServer.exe` côté Windows en processus détaché.
+- **Linux with a systemd service**: `systemctl restart palworld`
+- **Docker**: `docker restart palworld`
+- **Steam server on Windows, dashboard on WSL**: `bash scripts/restart-palserver.sh` — the script uses WSL interop (`cmd.exe /C start`) to relaunch `PalServer.exe` on the Windows side as a detached process.
 
-Séquence complète de `POST /api/config` : `save` → `shutdown` via l'API → attente de l'arrêt → écriture du `.ini` → exécution de `PALWORLD_RESTART_CMD`.
+Full sequence of `POST /api/config`: `save` → `shutdown` through the API → wait for the stop → write the `.ini` → run `PALWORLD_RESTART_CMD`.
 
-## Cas WSL : dashboard sous WSL, serveur Steam sous Windows
+The same command powers the **Start server** button (`POST /api/actions/start`), guarded by a liveness check so a running server can never be launched twice.
 
-Deux subtilités gérées par le projet :
+## WSL case: dashboard on WSL, Steam server on Windows
 
-- **Réseau** : depuis WSL, `127.0.0.1` ne pointe pas vers Windows. Mettre `PALWORLD_HOST=auto` : l'IP de l'hôte Windows (la passerelle par défaut de WSL, qui change à chaque reboot) est détectée automatiquement.
-- **Chemin du .ini** : utiliser le chemin monté, ex. `/mnt/c/Program Files (x86)/Steam/steamapps/common/PalServer/Pal/Saved/Config/WindowsServer/PalWorldSettings.ini`.
+Two subtleties handled by the project:
 
-À savoir : le `PalWorldSettings.ini` d'un serveur fraîchement installé est **vide**. Il faut y recopier la ligne `OptionSettings=(...)` depuis `DefaultPalWorldSettings.ini` (à la racine de `PalServer/`) et y activer `RESTAPIEnabled=True` + définir `AdminPassword`, sinon l'API REST ne démarre pas.
+- **Networking**: from WSL, `127.0.0.1` does not point to Windows. Set `PALWORLD_HOST=auto`: the Windows host IP (WSL's default gateway, which changes on every reboot) is detected automatically.
+- **Path to the .ini**: use the mounted path, e.g. `/mnt/c/Program Files (x86)/Steam/steamapps/common/PalServer/Pal/Saved/Config/WindowsServer/PalWorldSettings.ini`.
 
-## Hébergement en ligne (accès pour les amis)
+Good to know: the `PalWorldSettings.ini` of a freshly installed server is **empty**. You must copy the `OptionSettings=(...)` line from `DefaultPalWorldSettings.ini` (at the root of `PalServer/`), set `RESTAPIEnabled=True` and define `AdminPassword`, otherwise the REST API will not start.
 
-Le dashboard doit tourner **sur la même machine que le serveur Palworld** : il lit le `.ini` sur le disque et parle à l'API REST en local. On ne l'héberge donc pas sur un serveur distant — on **expose** le port local via un tunnel HTTPS :
+## Hosting online (access for friends)
+
+The dashboard must run **on the same machine as the Palworld server**: it reads the `.ini` from disk and talks to the REST API locally. So it is not hosted on a remote server — instead the local port is **exposed** through an HTTPS tunnel:
 
 ```bash
 ./scripts/start-online.sh
 ```
 
-Le script lance le dashboard puis un tunnel Cloudflare (`cloudflared`, installé automatiquement au premier lancement, sans compte) et affiche une URL publique `https://xxx.trycloudflare.com` à partager avec le mot de passe du dashboard.
+The script starts the dashboard, then a Cloudflare tunnel (`cloudflared`, installed automatically on first run, no account needed) and prints a public `https://xxx.trycloudflare.com` URL to share along with the dashboard password.
 
-Limites et alternatives :
+Limits and alternatives:
 
-- L'URL **change à chaque lancement** du script. Pour une URL stable et gratuite : un compte [ngrok](https://ngrok.com) (1 domaine statique offert : `ngrok http --domain=ton-domaine.ngrok-free.app 3000`) ou un tunnel Cloudflare nommé (nécessite un compte + un domaine).
-- Le dashboard est en ligne tant que le PC et le script tournent.
-- L'URL est publique : mets un `DASHBOARD_PASSWORD` long, c'est la seule barrière.
+- The URL **changes on every launch** of the script. For a stable free URL: an [ngrok](https://ngrok.com) account (1 static domain included: `ngrok http --domain=your-domain.ngrok-free.app 3000`) or a named Cloudflare tunnel (requires an account + a domain).
+- The dashboard stays online as long as the PC and the script are running.
+- The URL is public: use a long `DASHBOARD_PASSWORD`, it is the only barrier.
 
-## Le parseur de `PalWorldSettings.ini`
+## The `PalWorldSettings.ini` parser
 
-C'est le morceau le plus intéressant du projet. Le fichier de config de Palworld a une forme inhabituelle : les ~119 options vivent sur **une seule ligne**, entre parenthèses :
+This is the most interesting part of the project. Palworld's config file has an unusual shape: all ~119 options live on **a single line**, inside parentheses:
 
 ```ini
 [/Script/Pal.PalGameWorldSettings]
-OptionSettings=(Difficulty=None,DayTimeSpeedRate=1.000000,...,ServerName="Mon serveur",...)
+OptionSettings=(Difficulty=None,DayTimeSpeedRate=1.000000,...,ServerName="My server",...)
 ```
 
-Trois pièges rendent un parseur naïf inutilisable :
+Four traps make a naive parser unusable:
 
-1. **On ne peut pas `split(',')`.** Les valeurs entre guillemets peuvent contenir des virgules (`ServerDescription="Bienvenue, amusez-vous"`). Le découpage se fait caractère par caractère en suivant l'état ouvert/fermé des guillemets ([src/iniParser.js](src/iniParser.js), `splitPairs`).
+1. **You cannot `split(',')`.** Quoted values may contain commas (`ServerDescription="Welcome, have fun"`). Splitting is done character by character, tracking the open/closed state of quotes ([src/iniParser.js](src/iniParser.js), `splitPairs`).
 
-2. **Certaines valeurs sont des listes entre parenthèses imbriquées.** `CrossplayPlatforms=(Steam,Xbox,PS5,Mac)` contient des virgules ET des parenthèses : le découpage suit aussi la profondeur de parenthèses, sinon la paire explose en quatre morceaux.
+2. **Some values are nested parenthesized lists.** `CrossplayPlatforms=(Steam,Xbox,PS5,Mac)` contains commas AND parentheses: the splitter also tracks parenthesis depth, otherwise the pair explodes into four pieces.
 
-3. **Les guillemets courbes cassent le serveur.** Un copier-coller depuis un éditeur de texte riche introduit des `“ ”` typographiques que le serveur refuse silencieusement (il retombe sur les valeurs par défaut). Le parseur normalise `“ ” „ ‘ ’` en guillemets droits à la lecture **et** à l'écriture.
+3. **Curly quotes break the server.** Copy-pasting from a rich text editor introduces typographic `“ ”` quotes that the server silently rejects (it falls back to default values). The parser normalizes `“ ” „ ‘ ’` into straight quotes on read **and** on write.
 
-4. **Le serveur écrase le fichier à l'arrêt.** Écrire le `.ini` pendant que le serveur tourne est inutile : il réécrit sa config au shutdown. L'ordre correct est donc : `save` → `shutdown` via l'API REST → attendre l'arrêt → écrire le fichier → relancer le processus. C'est exactement ce que fait la route `POST /api/config`.
+4. **The server overwrites the file on shutdown.** Writing the `.ini` while the server is running is pointless: it rewrites its config at shutdown. The correct order is: `save` → `shutdown` through the REST API → wait for the stop → write the file → relaunch the process. This is exactly what `POST /api/config` does.
 
-À la réécriture, les clés non modifiées conservent leur **valeur brute d'origine** (pas de round-trip parse→format qui changerait `1.000000` en `1`), l'ordre des clés est préservé, et une copie `.bak` est créée avant chaque écriture. Résultat : un diff minimal et une syntaxe jamais cassée. Le typage (`float` → `toFixed(6)`, `boolean` → `True`/`False`, `string` → guillemets réinjectés) est inféré depuis la valeur d'origine et couvert par des tests :
+On rewrite, unmodified keys keep their **original raw value** (no parse→format round-trip that would turn `1.000000` into `1`), key order is preserved, and a `.bak` copy is created before every write. Result: a minimal diff and syntax that never breaks. Typing (`float` → `toFixed(6)`, `boolean` → `True`/`False`, `string` → re-injected quotes) is inferred from the original value and covered by tests:
 
 ```bash
 npm test
 ```
 
-## API interne
+## Internal API
 
 | Route | Description |
 |---|---|
 | `POST /api/login` / `POST /api/logout` | Session |
-| `GET /api/status` | Agrège `/info`, `/metrics`, `/players` de l'API Palworld |
-| `POST /api/actions/{announce,kick,save,shutdown}` | Actions serveur |
-| `GET /api/config` | Le `.ini` parsé en entrées typées |
-| `POST /api/config` | Écrit les modifications, redémarre optionnellement |
+| `GET /api/status` | Aggregates `/info`, `/metrics`, `/players` from the Palworld API |
+| `POST /api/actions/start` | Starts the server process (409 if already running) |
+| `POST /api/actions/{announce,kick,save,shutdown}` | Server actions |
+| `GET /api/config` | The parsed `.ini` as typed entries |
+| `POST /api/config` | Writes the changes, optionally restarts |
 
-## Licence
+## License
 
 MIT

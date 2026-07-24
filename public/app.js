@@ -2,6 +2,16 @@
 
 const $ = (sel) => document.querySelector(sel);
 
+// Langue des descriptions de config : 'fr' ou 'en', mémorisée dans le navigateur
+let lang = localStorage.getItem('lang') || 'fr';
+
+/** Métadonnées d'une clé du .ini : { name, desc } dans la langue courante. */
+function metaFor(key) {
+  const m = window.SETTINGS_META && SETTINGS_META[key];
+  if (!m) return { name: key, desc: '' };
+  return lang === 'fr' ? { name: m[0], desc: m[1] } : { name: m[2], desc: m[3] };
+}
+
 async function api(path, options = {}) {
   const res = await fetch(path, {
     headers: { 'Content-Type': 'application/json' },
@@ -51,6 +61,16 @@ $('#logout-btn').addEventListener('click', async () => {
   showLogin();
 });
 
+document.querySelectorAll('.lang-btn').forEach((btn) => {
+  btn.classList.toggle('active', btn.dataset.lang === lang);
+  btn.addEventListener('click', () => {
+    lang = btn.dataset.lang;
+    localStorage.setItem('lang', lang);
+    document.querySelectorAll('.lang-btn').forEach((b) => b.classList.toggle('active', b.dataset.lang === lang));
+    renderConfig($('#config-filter').value);
+  });
+});
+
 document.querySelectorAll('.tab').forEach((btn) => {
   btn.addEventListener('click', () => {
     document.querySelectorAll('.tab').forEach((b) => b.classList.remove('active'));
@@ -73,6 +93,7 @@ async function refreshStatus() {
   try {
     const data = await api('/api/status');
     const badge = $('#server-status');
+    $('#start-server-btn').classList.toggle('hidden', data.online);
     if (!data.online) {
       badge.textContent = '● Hors ligne';
       badge.className = 'badge offline';
@@ -115,6 +136,18 @@ async function refreshStatus() {
 
 // --- Actions ----------------------------------------------------------------
 
+async function startServer() {
+  if (!confirm('Démarrer le serveur Palworld ?')) return;
+  try {
+    await api('/api/actions/start', { method: 'POST' });
+    alert('Serveur en cours de démarrage — il apparaîtra en ligne dans une minute environ.');
+  } catch (err) {
+    alert(`Impossible de démarrer : ${err.message}`);
+  }
+}
+$('#start-server-btn').addEventListener('click', startServer);
+$('#start-btn-action').addEventListener('click', startServer);
+
 $('#announce-form').addEventListener('submit', async (e) => {
   e.preventDefault();
   await api('/api/actions/announce', { method: 'POST', body: { message: $('#announce-message').value } });
@@ -145,7 +178,10 @@ function renderConfig(filter = '') {
   container.innerHTML = '';
   const query = filter.toLowerCase();
   for (const entry of configEntries) {
-    if (query && !entry.key.toLowerCase().includes(query)) continue;
+    const meta = metaFor(entry.key);
+    // le filtre cherche dans la clé technique, le nom traduit et la description
+    const haystack = `${entry.key} ${meta.name} ${meta.desc}`.toLowerCase();
+    if (query && !haystack.includes(query)) continue;
     const row = document.createElement('div');
     row.className = 'config-row';
     const changed = entry.key in configChanges ? ' changed' : '';
@@ -162,7 +198,12 @@ function renderConfig(filter = '') {
       const step = entry.type === 'float' ? ' step="any"' : '';
       input = `<input type="${inputType}"${step} data-key="${entry.key}" value="${String(current).replace(/"/g, '&quot;')}" />`;
     }
-    row.innerHTML = `<label class="config-key${changed}">${entry.key}<span class="type-tag">${entry.type}</span></label>${input}`;
+    row.innerHTML = `
+      <div class="config-label${changed}">
+        <span class="config-name">${meta.name}<span class="type-tag">${entry.type}</span></span>
+        <code class="config-code">${entry.key}</code>
+        ${meta.desc ? `<span class="config-desc">${meta.desc}</span>` : ''}
+      </div>${input}`;
     container.appendChild(row);
   }
   container.querySelectorAll('[data-key]').forEach((el) => {
