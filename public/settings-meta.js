@@ -7,8 +7,8 @@
  * Pour les taux (Rate) : 1.0 = normal, 2.0 = double, 0.5 = moitié.
  */
 const SETTINGS_META = {
-  Difficulty: ['Difficulté', 'Préréglage de difficulté globale. None = personnalisée via les options ci-dessous.', 'Difficulty', 'Global difficulty preset. None = custom, driven by the options below.'],
-  RandomizerType: ['Randomisation des Pals', 'Mélange les espèces de Pals sauvages : None (désactivé), Region (par zone) ou All (partout).', 'Pal randomizer', 'Shuffles wild Pal species: None (off), Region (per area) or All (everywhere).'],
+  Difficulty: ['Difficulté', 'Préréglage de difficulté globale. Valeurs : None (personnalisée via les options ci-dessous), Casual, Normal, Hard.', 'Difficulty', 'Global difficulty preset. Values: None (custom, driven by the options below), Casual, Normal, Hard.'],
+  RandomizerType: ['Randomisation des Pals', 'Mélange les espèces de Pals sauvages. Valeurs : None (désactivé), Region (par zone), All (partout).', 'Pal randomizer', 'Shuffles wild Pal species. Values: None (off), Region (per area), All (everywhere).'],
   RandomizerSeed: ['Graine de randomisation', 'Graine utilisée par la randomisation des Pals. Vide = aléatoire.', 'Randomizer seed', 'Seed used by the Pal randomizer. Empty = random.'],
   bIsRandomizerPalLevelRandom: ['Niveaux randomisés', 'Avec le randomizer, les niveaux des Pals sauvages deviennent aussi aléatoires.', 'Random Pal levels', 'With the randomizer on, wild Pal levels are also randomized.'],
   DayTimeSpeedRate: ['Vitesse du jour', 'Vitesse d’écoulement de la journée. 2.0 = les journées passent deux fois plus vite.', 'Day time speed', 'How fast daytime passes. 2.0 = days go by twice as fast.'],
@@ -35,7 +35,7 @@ const SETTINGS_META = {
   CollectionObjectHpRate: ['Résistance des ressources', 'Points de vie des objets récoltables (arbres, rochers…). Plus bas = récolte plus rapide.', 'Gatherable HP', 'Hit points of gatherable objects (trees, rocks…). Lower = faster gathering.'],
   CollectionObjectRespawnSpeedRate: ['Réapparition des ressources', 'Vitesse de réapparition des ressources récoltables.', 'Resource respawn speed', 'How fast gatherable resources respawn.'],
   EnemyDropItemRate: ['Butin des ennemis', 'Quantité d’objets lâchés par les ennemis vaincus.', 'Enemy drop rate', 'Amount of items dropped by defeated enemies.'],
-  DeathPenalty: ['Pénalité de mort', 'Ce qui est perdu à la mort : None (rien), Item (inventaire sauf équipement), ItemAndEquipment (tout l’inventaire), All (inventaire + Pals de l’équipe).', 'Death penalty', 'What is dropped on death: None (nothing), Item (inventory except gear), ItemAndEquipment (all inventory), All (inventory + party Pals).'],
+  DeathPenalty: ['Pénalité de mort', 'Ce qui est perdu à la mort. Valeurs : None (rien), Item (inventaire sauf équipement), ItemAndEquipment (tout l’inventaire), All (inventaire + Pals de l’équipe).', 'Death penalty', 'What is dropped on death. Values: None (nothing), Item (inventory except gear), ItemAndEquipment (all inventory), All (inventory + party Pals).'],
   bEnablePlayerToPlayerDamage: ['Dégâts entre joueurs', 'Les joueurs peuvent se blesser entre eux.', 'Player vs player damage', 'Players can damage each other.'],
   bEnableFriendlyFire: ['Tir allié', 'Les membres d’une même guilde peuvent se blesser entre eux.', 'Friendly fire', 'Guild members can damage each other.'],
   bEnableInvaderEnemy: ['Raids sur les bases', 'Des vagues d’ennemis attaquent périodiquement vos bases.', 'Base raids', 'Enemy waves periodically attack your bases.'],
@@ -88,9 +88,9 @@ const SETTINGS_META = {
   RESTAPIPort: ['Port API REST', 'Port de l’API REST (8212 par défaut). ⚠ Doit correspondre au .env du dashboard.', 'REST API port', 'Port of the REST API (default 8212). ⚠ Must match the dashboard’s .env.'],
   bShowPlayerList: ['Liste des joueurs publique', 'Rend la liste des joueurs visible depuis le navigateur de serveurs.', 'Public player list', 'Makes the player list visible from the server browser.'],
   ChatPostLimitPerMinute: ['Limite de chat', 'Nombre maximum de messages de chat par joueur et par minute.', 'Chat rate limit', 'Maximum chat messages per player per minute.'],
-  CrossplayPlatforms: ['Plateformes crossplay', 'Plateformes autorisées à rejoindre : (Steam,Xbox,PS5,Mac).', 'Crossplay platforms', 'Platforms allowed to join: (Steam,Xbox,PS5,Mac).'],
+  CrossplayPlatforms: ['Plateformes crossplay', 'Plateformes autorisées à rejoindre, entre parenthèses et séparées par des virgules. Valeurs possibles : Steam, Xbox, PS5, Mac. Exemple : (Steam,Xbox,PS5,Mac) — retirez celles à bloquer.', 'Crossplay platforms', 'Platforms allowed to join, in parentheses, comma-separated. Possible values: Steam, Xbox, PS5, Mac. Example: (Steam,Xbox,PS5,Mac) — remove the ones to block.'],
   bIsUseBackupSaveData: ['Sauvegardes de secours', 'Conserve des copies de secours automatiques de la sauvegarde du monde.', 'Backup saves', 'Keeps automatic backup copies of the world save.'],
-  LogFormatType: ['Format des logs', 'Format des journaux du serveur : Text ou Json.', 'Log format', 'Server log format: Text or Json.'],
+  LogFormatType: ['Format des logs', 'Format des journaux du serveur. Valeurs : Text, Json.', 'Log format', 'Server log format. Values: Text, Json.'],
   bIsShowJoinLeftMessage: ['Messages entrée/sortie', 'Affiche en jeu les messages de connexion et de déconnexion des joueurs.', 'Join/leave messages', 'Shows player join and leave messages in game.'],
   SupplyDropSpan: ['Largages (minutes)', 'Intervalle en minutes entre les largages de ravitaillement.', 'Supply drops (minutes)', 'Minutes between supply drops.'],
   EnablePredatorBossPal: ['Pals prédateurs', 'Fait apparaître les Pals prédateurs (boss agressifs errants).', 'Predator Pals', 'Spawns predator Pals (roaming aggressive bosses).'],
@@ -103,7 +103,7 @@ const SETTINGS_META = {
   PlayerDataPalStorageUpdateCheckTickInterval: ['Vérif stockage Pals (s)', 'Réglage technique : intervalle de vérification du stockage de Pals des joueurs.', 'Pal storage check (s)', 'Technical: check interval for player Pal storage updates.'],
   ItemCorruptionMultiplier: ['Corruption des objets', 'Multiplicateur de dégradation des objets (mode hardcore).', 'Item corruption', 'Item corruption/decay multiplier (hardcore mode).'],
   MonsterFarmActionSpeedRate: ['Vitesse au ranch', 'Vitesse de production des Pals affectés au ranch.', 'Ranch speed', 'Production speed of Pals assigned to the ranch.'],
-  DenyTechnologyList: ['Technologies interdites', 'Liste d’identifiants de technologies que les joueurs ne peuvent pas débloquer.', 'Denied technologies', 'List of technology IDs players cannot unlock.'],
+  DenyTechnologyList: ['Technologies interdites', 'Identifiants internes de technologies que les joueurs ne peuvent pas débloquer, séparés par des virgules (ex : GrapplingGun). Vide = aucune interdiction.', 'Denied technologies', 'Internal technology IDs players cannot unlock, comma-separated (e.g. GrapplingGun). Empty = nothing forbidden.'],
   GuildRejoinCooldownMinutes: ['Délai de re-guilde (min)', 'Minutes d’attente avant de pouvoir rejoindre une nouvelle guilde après en avoir quitté une.', 'Guild rejoin cooldown (min)', 'Minutes to wait before joining a new guild after leaving one.'],
   AutoTransferMasterCheckIntervalSeconds: ['Vérif chef de guilde (s)', 'Réglage technique : intervalle de vérification du transfert automatique de chef de guilde.', 'Guild master check (s)', 'Technical: check interval for automatic guild master transfer.'],
   AutoTransferMasterThresholdDays: ['Transfert de chef (jours)', 'Jours d’absence du chef avant que la direction de la guilde soit transférée automatiquement.', 'Master transfer (days)', 'Days of leader inactivity before guild leadership is auto-transferred.'],
@@ -113,7 +113,7 @@ const SETTINGS_META = {
   RespawnPenaltyTimeScale: ['Facteur pénalité respawn', 'Multiplicateur appliqué au délai de réapparition en cas de morts répétées.', 'Respawn penalty scale', 'Multiplier applied to respawn delay on repeated deaths.'],
   bDisplayPvPItemNumOnWorldMap_BaseCamp: ['Objets PvP : bases (carte)', 'Affiche sur la carte le nombre d’objets PvP présents dans les bases.', 'PvP items: bases (map)', 'Shows on the map the number of PvP items in base camps.'],
   bDisplayPvPItemNumOnWorldMap_Player: ['Objets PvP : joueurs (carte)', 'Affiche sur la carte le nombre d’objets PvP portés par les joueurs.', 'PvP items: players (map)', 'Shows on the map the number of PvP items carried by players.'],
-  AdditionalDropItemWhenPlayerKillingInPvPMode: ['Objet bonus kill PvP', 'Identifiant de l’objet lâché en plus quand un joueur en tue un autre en PvP.', 'PvP kill bonus item', 'ID of the extra item dropped when a player kills another in PvP.'],
+  AdditionalDropItemWhenPlayerKillingInPvPMode: ['Objet bonus kill PvP', 'Identifiant interne de l’objet lâché en plus quand un joueur en tue un autre en PvP. Valeur par défaut : PlayerDropItem.', 'PvP kill bonus item', 'Internal ID of the extra item dropped when a player kills another in PvP. Default: PlayerDropItem.'],
   AdditionalDropItemNumWhenPlayerKillingInPvPMode: ['Quantité bonus kill PvP', 'Quantité de l’objet bonus lâché lors d’un kill PvP.', 'PvP kill bonus amount', 'Amount of the bonus item dropped on a PvP kill.'],
   bAdditionalDropItemWhenPlayerKillingInPvPMode: ['Drop bonus kill PvP', 'Active le lâcher d’objet supplémentaire lors d’un kill PvP.', 'PvP kill bonus drop', 'Enables the extra item drop on PvP kills.'],
   bEnableVoiceChat: ['Chat vocal', 'Active le chat vocal de proximité intégré.', 'Voice chat', 'Enables the built-in proximity voice chat.'],
@@ -126,6 +126,17 @@ const SETTINGS_META = {
   bAllowEnhanceStat_WorkSpeed: ['Amélioration : Travail', 'Autorise l’amélioration de la vitesse de travail.', 'Enhance stat: Work speed', 'Allows enhancing work speed.'],
   bEnableBuildingPlayerUIdDisplay: ['Propriétaire des constructions', 'Affiche l’identifiant du joueur propriétaire sur les constructions.', 'Building owner display', 'Shows the owning player’s ID on structures.'],
   BuildingNameDisplayCacheTTLSeconds: ['Cache noms bâtiments (s)', 'Réglage technique : durée de cache de l’affichage des noms de constructions.', 'Building name cache (s)', 'Technical: cache duration for building name display.'],
+};
+
+/**
+ * Valeurs autorisées des clés à choix fermé : rendues en menu déroulant
+ * plutôt qu'en champ texte, pour ne pas avoir à deviner.
+ */
+const SETTINGS_ENUMS = {
+  Difficulty: ['None', 'Casual', 'Normal', 'Hard'],
+  RandomizerType: ['None', 'Region', 'All'],
+  DeathPenalty: ['None', 'Item', 'ItemAndEquipment', 'All'],
+  LogFormatType: ['Text', 'Json'],
 };
 
 /**

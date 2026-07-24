@@ -193,12 +193,19 @@ function configRow(entry) {
   row.className = 'config-row';
   const changed = entry.key in configChanges ? ' changed' : '';
   const current = entry.key in configChanges ? configChanges[entry.key] : entry.value;
+  const enumValues = typeof SETTINGS_ENUMS !== 'undefined' ? SETTINGS_ENUMS[entry.key] : null;
   let input;
   if (entry.type === 'boolean') {
     input = `<select data-key="${entry.key}">
       <option value="True" ${current === true || current === 'True' ? 'selected' : ''}>True</option>
       <option value="False" ${current === false || current === 'False' ? 'selected' : ''}>False</option>
     </select>`;
+  } else if (enumValues) {
+    // valeur inconnue (fichier édité à la main) : on la garde en tête de liste
+    const values = enumValues.includes(String(current)) ? enumValues : [current, ...enumValues];
+    input = `<select data-key="${entry.key}">${values
+      .map((v) => `<option value="${v}" ${String(current) === String(v) ? 'selected' : ''}>${v}</option>`)
+      .join('')}</select>`;
   } else {
     const inputType = entry.type === 'float' || entry.type === 'integer' ? 'number' : 'text';
     const step = entry.type === 'float' ? ' step="any"' : '';
